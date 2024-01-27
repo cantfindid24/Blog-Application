@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include ('./partials/head.ejs')%>
+    <title>Signin Page</title>
+  </head>
+  <body>
+    <%- include ('./partials/nav.ejs')%>
+    <form class="auth-form">
+      <h2>Log in</h2>
+      <label>Email</label>
+      <input type="text" required name="email" />
+      <div class="emailError"></div>
+      <label>Password</label>
+      <input type="password" required name="password" />
+      <div class="passwordError"></div>
+
+      <button type="submit">log in</button>
+    </form>
+    <script>
+      const form = document.querySelector('form');
+      const emailError = document.querySelector('.emailError');
+      const passwordError = document.querySelector('.passwordError');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // reset errors
+        emailError.textContent = '';
+        passwordError.textContent = '';
+
+        const email = form.email.value;
+        const password = form.password.value;
+        try {
+          const res = await fetch('/auth/signin', {
+            method: 'post',
+            body: JSON.stringify({ email, password }),
+            headers: { 'Content-Type': 'application/json' },
+          });
+
+          const data = await res.json();
+
+          if (data.errors) {
+            console.log(data.errors);
+            emailError.textContent = data.errors.email;
+            passwordError.textContent = data.errors.password;
+          }
+          if (data.user) {
+            location.assign('/');
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      });
+    </script>
+
+    <%- include ('./partials/script.ejs')%>
+  </body>
+</html>
